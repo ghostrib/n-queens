@@ -41,47 +41,51 @@ window.countNRooksSolutions = function(n) {
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
-window.findNQueensSolution = function(n, board, row = 0) {
-  if (n === 0) return [];
-  if (board === undefined) {
-    board = new Board({'n': n});
-    for (let i in board.rows()) {
-      board.togglePiece(i, 0);
+window.findNQueensSolution = function(n) {
+  
+  const makeBoard = function (cols) {
+    const board = new Board({'n': n});
+    for (let i in cols) {
+      board.togglePiece(i, cols[i]);
     }
-    //console.log(board.rows());
-  }
-  console.log(JSON.stringify(board.rows()));
-  if (!board.hasAnyQueensConflicts()) {
-    console.log('Single solution for ' + n + ' queens:', JSON.stringify(board.rows()));
     return board;
   }
 
-  let queenPosition = board.rows()[row].indexOf(1);
-  if (queenPosition < n - 1) {
-    board.togglePiece(row, queenPosition);
-    board.togglePiece(row, queenPosition + 1);
-    if (row > 0) {
-      return findNQueensSolution(n, board, row - 1)
-    } else {
-      return findNQueensSolution(n, board, row);
-    }
-  } else {
-    if (row === n - 1) {
-      return null;
-    }
-    board.togglePiece(row, queenPosition);
-    board.togglePiece(row, 0);
-    //let queenPosition = board.rows()[row + 1].indexOf(1);
-    return findNQueensSolution(n, board, row + 1);
+  const checkSolution = function (cols) {
+    return !makeBoard(cols).hasAnyQueensConflicts();
   }
-};
 
-/*
-[0, 0, 0, 0]
-[1, 0, 0, 0]
-[0, 0, 0, 0]
-[0, 1, 0, 0]
-*/
+  const isAllZeros = function (cols) {
+    return cols.reduce((bool, num) => bool && num === 0, true);
+  }
+
+  let stop = 0;
+  const cols = Array(n).fill(0);  
+  cols[0] = -1;
+  const stopper = Array(n).fill(n -1);
+  let i = 0;
+  outerloop:
+  while (stop < 300) {
+    cols[i]++;
+    while (cols[i] === n && i < n) {
+      cols[i] = 0;
+      i++;
+      continue outerloop;
+    }
+    if (i > 0) {
+      i = 0;
+    }
+
+    // console.log('in while loop', i, JSON.stringify(cols));
+    if (checkSolution(cols)) {
+      let solution = makeBoard(cols).rows();
+      console.log('Single solution for ' + n + ' queens:', solution);
+      return solution;
+    }
+    if (JSON.stringify(cols) == JSON.stringify(stopper)) break;
+  }
+  return null;
+};
 
 
 
