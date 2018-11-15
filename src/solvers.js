@@ -44,14 +44,10 @@ window.countNRooksSolutions = function (n) {
 window.findNQueensSolution = function (n) {
   let emptyBoard = new Board({ 'n': n });
   let row = 0;
-  //console.log(board.rows())
   const recurse = function (n, board, row) {
     for (let col = 0; col < n; col++) {
       let result = (function () {
-        // board.rows()[row].forEach(function(element, col) {
-        //let newBoard = 0;
         newBoard = new Board(JSON.parse(JSON.stringify(board.rows())));
-        //console.log('before', newBoard.rows());
         newBoard.togglePiece(row, col);
 
         // check board for conflict to bail out early
@@ -82,14 +78,32 @@ window.findNQueensSolution = function (n) {
   return solution;
 }
 
-
-
-
-
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function (n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = 0;
 
+  let emptyBoard = new Board({ 'n': n });
+  let row = 0;
+  const recurse = function (n, board, row) {
+    for (let col = 0; col < n; col++) {
+      let result = (function () {
+        newBoard = new Board(JSON.parse(JSON.stringify(board.rows())));
+        newBoard.togglePiece(row, col);
+        // check board for conflict to bail out early
+        if (newBoard.hasAnyQueensConflicts()) {
+          return null;
+        }
+        if (row < n - 1) {
+          return recurse(n, newBoard, row + 1);
+        } else {
+          if (!newBoard.hasAnyQueensConflicts()) {
+            solutionCount++;
+          }
+        }
+      })();
+    };
+  }
+  recurse(n, emptyBoard, row);
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
